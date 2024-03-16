@@ -47,7 +47,12 @@ Visa Platinum 7000 79** **** 6361 -> Счет **9638
    ```bash
    pip install -r requirements.txt
     ```
-4. Запустить проект:
+   
+4. Перейти в папку ```account_transactions```
+   ```bash
+   cd account_transactions
+   ```
+5. Запустить проект:
     ```bash
     python main.py
     ```
