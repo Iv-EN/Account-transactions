@@ -1,11 +1,8 @@
-import json
 import datetime
+import json
 import re
+from typing import Union
 
-FILE_NAME = "data/operations.json"
-"""Имя файла с данными об операциях."""
-NUMBER_OPERATIONS_EXECUTED = 5
-"""Количество выполненных (EXECUTED) операций для вывода на экран."""
 
 def get_data_from_file(file_name: str) -> list:
     """
@@ -37,9 +34,9 @@ def sort_date_by_date(no_sorted_data: list, number: int) -> list:
             operations_for_withdrawal.append(operation)
     return operations_for_withdrawal
 
-def format_numbers(account_info: str) -> str:
+def format_numbers(account_info: str) -> Union[str, None]:
     """Форматирует номер карты или счёта по указанным правилам."""
-    groups = re.match(r"([а-яА-Яa-zA-Z\s]+)\s(\d+)", account_info)
+    groups = re.match(r"([а-яА-Яa-zA-Z\s]+)\s(\d+)", account_info, re.UNICODE)
     if groups:
         name, number = groups.groups()
         name = name.strip()
@@ -53,12 +50,10 @@ def format_numbers(account_info: str) -> str:
         else:
             return "Неверный формат"
         return f"{name} {formatted}"
-    return "Не удалось получить номер карты или счёта"
+    return None
 
 def get_print_data(operation: dict):
-    """
-    Получает и форматирует информацию об операции.
-    """
+    """Получает и форматирует информацию об операции."""
     date = datetime.datetime.strptime(operation["date"].split("T")[0],
                              "%Y-%m-%d").strftime("%d.%m.%Y")
     description = operation["description"]
@@ -66,16 +61,12 @@ def get_print_data(operation: dict):
     to_account = format_numbers(operation.get("to", "Нет данных"))
     amount = operation["operationAmount"]["amount"]
     currency = operation["operationAmount"]["currency"]["name"]
+    if from_account is not None:
+        return (f"{date} {description}\n"
+                f"{from_account} -> {to_account}\n"
+                f"{amount} {currency}\n"
+                "")
     return (f"{date} {description}\n"
-            f"{from_account} -> {to_account}\n"
+            f"{to_account}\n"
             f"{amount} {currency}\n"
             "")
-
-
-
-
-#file = FILE_NAME
-#no_sort = get_data_from_file(file)
-#sort_data = sort_date_by_date(no_sort, NUMBER_OPERATIONS_EXECUTED)
-#print(sort_data)
-#print(len(sort_data))
