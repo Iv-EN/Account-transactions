@@ -5,7 +5,7 @@ FILE_NAME = "data/operations.json"
 NUMBER_OPERATIONS_EXECUTED: int = 5
 """Количество выполненных (EXECUTED) операций для вывода на экран."""
 
-def main():
+def main() -> None:
     """Основная функция проекта."""
     no_sorted_data = get_data_from_file(FILE_NAME)
     sorted_data = sort_date_by_date(no_sorted_data, NUMBER_OPERATIONS_EXECUTED)
