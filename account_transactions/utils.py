@@ -2,7 +2,7 @@ import json
 import datetime
 import re
 
-FILE_NAME = "account_transactions/data/operations.json"
+FILE_NAME = "data/operations.json"
 """Имя файла с данными об операциях."""
 NUMBER_OPERATIONS_EXECUTED = 5
 """Количество выполненных (EXECUTED) операций для вывода на экран."""
@@ -20,7 +20,8 @@ def get_data_from_file(file_name: str) -> list:
 def sort_date_by_date(no_sorted_data: list, number: int) -> list:
     """
     Сортирует полученные данные по дате
-    и возвращает необходимое количество выполненных операций."""
+    и возвращает необходимое количество выполненных операций.
+    """
     operations_for_withdrawal = []
     sorted_data = sorted(
         [item for item in no_sorted_data if item],
@@ -38,28 +39,43 @@ def sort_date_by_date(no_sorted_data: list, number: int) -> list:
 
 def format_numbers(account_info: str) -> str:
     """Форматирует номер карты или счёта по указанным правилам."""
-    numbers = re.findall(r'\d+', account_info)
-    if numbers:
-        num = numbers[0]
-        if len(num) == 16:
-            formatted = f"{num[:4]} {num[4: 6]}** **** {num[-4:]}"
-            return formatted
+    groups = re.match(r"([а-яА-Яa-zA-Z\s]+)\s(\d+)", account_info)
+    if groups:
+        name, number = groups.groups()
+        name = name.strip()
+        if number.isdigit():
+            if len(number) == 16:
+                formatted = f"{number[:4]} {number[4: 6]}** **** {number[-4:]}"
+            elif len(number) > 4:
+                formatted = f"**{number[-4:]}"
+            else:
+                return "Неизвестный формат номера"
         else:
-            formatted = f"**{num[-4:]}"
-            return formatted
+            return "Неверный формат"
+        return f"{name} {formatted}"
     return "Не удалось получить номер карты или счёта"
 
-
-
-def get_print_data(operation: list) -> tuple:
+def get_print_data(operation: dict):
     """
-    Получает необходимые для вывода данные
-    и приводит их необходимому виду.
+    Получает и форматирует информацию об операции.
     """
+    date = datetime.datetime.strptime(operation["date"].split("T")[0],
+                             "%Y-%m-%d").strftime("%d.%m.%Y")
+    description = operation["description"]
+    from_account = format_numbers(operation.get("from", "Нет данных"))
+    to_account = format_numbers(operation.get("to", "Нет данных"))
+    amount = operation["operationAmount"]["amount"]
+    currency = operation["operationAmount"]["currency"]["name"]
+    return (f"{date} {description}\n"
+            f"{from_account} -> {to_account}\n"
+            f"{amount} {currency}\n"
+            "")
 
 
-file = FILE_NAME
-no_sort = get_data_from_file(file)
-sort_data = sort_date_by_date(no_sort, NUMBER_OPERATIONS_EXECUTED)
-print(sort_data)
-print(len(sort_data))
+
+
+#file = FILE_NAME
+#no_sort = get_data_from_file(file)
+#sort_data = sort_date_by_date(no_sort, NUMBER_OPERATIONS_EXECUTED)
+#print(sort_data)
+#print(len(sort_data))
